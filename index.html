@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive CI/CD Architecture Guide | DevOps Excellence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #0f172a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>');
+            background-size: 100px;
+            opacity: 0.5;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            padding: 0 1rem;
+        }
+
+        .nav-container a {
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-container a:hover, .nav-container a.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 80px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header i {
+            font-size: 2rem;
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Flow Diagrams */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .flow-step {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+
+        .flow-step.success { background: var(--success); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3); }
+        .flow-step.warning { background: var(--warning); box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3); }
+        .flow-step.danger { background: var(--danger); box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+        .flow-step.info { background: var(--info); box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3); }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        /* Key Topics */
+        .key-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .topic-item {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .topic-item strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Pros & Cons */
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .pros-cons { grid-template-columns: 1fr; }
+        }
+
+        .pros, .cons {
+            padding: 1.25rem;
+            border-radius: 8px;
+        }
+
+        .pros {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .pros h4 { color: #065f46; margin-bottom: 0.75rem; }
+        .pros ul li::marker { color: var(--success); }
+
+        .cons {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .cons h4 { color: #991b1b; margin-bottom: 0.75rem; }
+        .cons ul li::marker { color: var(--danger); }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Great & Improve */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .status-grid { grid-template-columns: 1fr; }
+        }
+
+        .great, .improve {
+            padding: 1.25rem;
+            border-radius: 8px;
+        }
+
+        .great {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #a7f3d0;
+        }
+
+        .great h4 { color: #065f46; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .improve {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+        }
+
+        .improve h4 { color: #1e40af; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Use Cases */
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .use-case {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .use-case:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .use-case h5 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        /* Collapsible Details */
+        details {
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 1rem 1.5rem;
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        summary:hover {
+            background: #f1f5f9;
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid var(--border);
+            background: #eff6ff;
+        }
+
+        .details-content {
+            padding: 1.5rem;
+        }
+
+        /* Code Blocks */
+        code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--secondary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-primary { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+
+        /* Footer */
+        footer {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        /* Print Styles */
+        @media print {
+            nav, header::before { display: none; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-infinity"></i> Comprehensive CI/CD Architecture Guide</h1>
+    <p>End-to-End DevOps Workflows, Patterns, and Best Practices for Kubernetes Deployments</p>
+</header>
+
+<nav>
+    <div class="nav-container">
+        <a href="#architecture" class="active"><i class="fas fa-project-diagram"></i> Architecture</a>
+        <a href="#branching"><i class="fas fa-code-branch"></i> Branching</a>
+        <a href="#ci"><i class="fas fa-vial"></i> CI Pipeline</a>
+        <a href="#post-merge"><i class="fas fa-box"></i> Artifact Mgmt</a>
+        <a href="#cd"><i class="fas fa-rocket"></i> CD Pipeline</a>
+        <a href="#env"><i class="fas fa-cogs"></i> Env Config</a>
+        <a href="#security"><i class="fas fa-shield-alt"></i> Security</a>
+        <a href="#roadmap"><i class="fas fa-map-marked-alt"></i> Roadmap</a>
+    </div>
+</nav>
+
+<main>
+    <!-- 1. ARCHITECTURE -->
+    <section id="architecture">
+        <div class="section-header">
+            <i class="fas fa-project-diagram"></i>
+            <h2>1. High-Level Architecture & Developer Workflow</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> End-to-End Process Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">Developer Code</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Push to Bitbucket</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Create PR</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">CI Validation (Multibranch)</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">Code Review & Approve</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Merge to Develop</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Build & Push to JFrog</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">CD Pipeline (Freestyle)</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step danger">Deploy to K8s</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Hybrid Pipeline Approach</strong>
+                    Multibranch Pipelines for CI (PR validation) and Freestyle Jobs for CD (K8s deployment).
+                </div>
+                <div class="topic-item">
+                    <strong>Build Once, Deploy Many</strong>
+                    Docker images are built once and promoted across environments without rebuilding.
+                </div>
+                <div class="topic-item">
+                    <strong>Immutable Artifacts</strong>
+                    JFrog Artifactory ensures artifacts are immutable and versioned.
+                </div>
+                <div class="topic-item">
+                    <strong>Environment Agnostic Containers</strong>
+                    Configuration is injected at runtime via Kubernetes ConfigMaps/Secrets.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-tools"></i> Technology Stack</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Technology</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fab fa-jenkins"></i> CI/CD Orchestrator</td>
+                        <td><span class="badge badge-primary">Jenkins</span></td>
+                        <td>Pipeline automation and orchestration</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fab fa-bitbucket"></i> Source Control</td>
+                        <td><span class="badge badge-primary">Bitbucket</span></td>
+                        <td>Code repository & PR management</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-box"></i> Artifact Repository</td>
+                        <td><span class="badge badge-primary">JFrog Artifactory</span></td>
+                        <td>Docker image storage and management</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fab fa-docker"></i> Containerization</td>
+                        <td><span class="badge badge-primary">Docker</span></td>
+                        <td>Application packaging</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-dharmachakra"></i> Orchestration</td>
+                        <td><span class="badge badge-primary">Kubernetes (On-Prem)</span></td>
+                        <td>Deployment and scaling platform</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Clear separation of concerns between CI (validation) and CD (deployment).</li>
+                                <li>Automated PR validation prevents broken code from merging.</li>
+                                <li>Immutable artifact strategy ensures consistency across environments.</li>
+                                <li>Well-defined developer workflow with clear handoffs.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Migrate Freestyle CD jobs to Jenkins Pipeline (Jenkinsfile) for version control.</li>
+                                <li>Implement GitOps (ArgoCD/Flux) for declarative Kubernetes deployments.</li>
+                                <li>Add automated rollback mechanisms in the CD pipeline.</li>
+                                <li>Introduce Blue-Green or Canary deployment strategies.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 2. BRANCHING STRATEGY -->
+    <section id="branching">
+        <div class="section-header">
+            <i class="fas fa-code-branch"></i>
+            <h2>2. Bitbucket Repository & Branching Strategy</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Branching Flow (GitFlow-Inspired)</h3>
+            <div class="flow-container">
+                <div class="flow-step">feature/*</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">develop</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">release/*</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step danger">main (Production)</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Feature Branches</strong>
+                    Used for developing new features or fixing bugs. Short-lived and merged via PR.
+                </div>
+                <div class="topic-item">
+                    <strong>Develop Branch</strong>
+                    Integration branch for combining feature branches. Auto-deploys to Dev environment.
+                </div>
+                <div class="topic-item">
+                    <strong>Release Branches</strong>
+                    Contains production-ready code. Auto-deploys to Test/Staging environment.
+                </div>
+                <div class="topic-item">
+                    <strong>Branch Protection</strong>
+                    No direct commits to develop/release. Minimum 1 approval required (Aditya/Lokesh).
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Strict governance prevents unauthorized changes.</li>
+                        <li>Clear separation between development, integration, and production code.</li>
+                        <li>Mandatory code reviews ensure quality and knowledge sharing.</li>
+                        <li>Supports parallel development of multiple features.</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>Can become complex for small teams or simple projects.</li>
+                        <li>Long-lived release branches can lead to merge conflicts.</li>
+                        <li>Requires discipline to keep feature branches short-lived.</li>
+                        <li>Slower time-to-market compared to Trunk-Based Development.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-bullseye"></i> Use Cases</h3>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h5>Enterprise Applications</h5>
+                    <p>Ideal for large teams working on complex applications requiring strict release cycles and compliance.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Regulated Environments</h5>
+                    <p>Perfect for industries like finance or healthcare where audit trails and mandatory approvals are required.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Multi-Environment Deployments</h5>
+                    <p>Supports clear promotion paths from Dev -> Test -> Prod with environment-specific branches.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Enforced branch protection rules preventing direct commits.</li>
+                                <li>Established clear approvers (Aditya/Lokesh) for accountability.</li>
+                                <li>Mandatory PRs ensure every change is reviewed.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Automate stale branch cleanup (delete branches > 30 days old).</li>
+                                <li>Implement semantic versioning (v1.0.0) for release branches.</li>
+                                <li>Add automated merge conflict detection in PRs.</li>
+                                <li>Consider Trunk-Based Development for faster iteration.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 3. CI PIPELINE -->
+    <section id="ci">
+        <div class="section-header">
+            <i class="fas fa-vial"></i>
+            <h2>3. Continuous Integration (CI) – PR Validation</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Multistage CI Pipeline Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">Checkout PR</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Linting</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">Unit Tests</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Docker Build</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">Smoke Tests</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Jenkins Multibranch Pipeline</strong>
+                    Automatically discovers branches and runs Jenkinsfile from each branch.
+                </div>
+                <div class="topic-item">
+                    <strong>Quality Gates</strong>
+                    Pipeline must pass all stages before PR can be merged. Fails block the merge.
+                </div>
+                <div class="topic-item">
+                    <strong>Validation Only</strong>
+                    Docker image is built for testing but NOT published to Artifactory.
+                </div>
+                <div class="topic-item">
+                    <strong>Fast Feedback</strong>
+                    Designed to run quickly (5-10 mins) to keep developers productive.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Catches bugs and code quality issues before merge.</li>
+                        <li>Ensures all code is tested and linted automatically.</li>
+                        <li>Reduces manual code review burden by automating checks.</li>
+                        <li>Multibranch setup handles all branches automatically.</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>Can become slow if test suite grows without optimization.</li>
+                        <li>Flaky tests can block merges and frustrate developers.</li>
+                        <li>Requires maintenance of Jenkinsfile and test infrastructure.</li>
+                        <li>Resource intensive if running many PRs in parallel.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-bullseye"></i> Use Cases</h3>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h5>Microservices Development</h5>
+                    <p>Validates each service independently before integration into the main branch.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Open Source Projects</h5>
+                    <p>Ensures community contributions meet project standards before acceptance.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Regulated Codebases</h5>
+                    <p>Provides audit trail of all automated checks performed on code changes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Comprehensive validation: linting, unit tests, build, smoke tests.</li>
+                                <li>Fast feedback loop for developers.</li>
+                                <li>Environment-agnostic Docker builds.</li>
+                                <li>Clear success/failure criteria for PRs.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Add security scanning (Trivy for images, Bandit for Python).</li>
+                                <li>Implement parallel test execution to speed up pipeline.</li>
+                                <li>Add code coverage reporting with thresholds.</li>
+                                <li>Cache dependencies to reduce build times.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 4. POST-MERGE -->
+    <section id="post-merge">
+        <div class="section-header">
+            <i class="fas fa-box"></i>
+            <h2>4. Post-Merge Build & Artifact Publish</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Post-Merge Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">PR Merged</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Checkout Code</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">Lint Full Codebase</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Build Docker Image</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">Push to JFrog</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Triggered on Merge</strong>
+                    Runs automatically after PR is merged to develop or release branches.
+                </div>
+                <div class="topic-item">
+                    <strong>Immutable Artifacts</strong>
+                    Images are tagged with build number and pushed to JFrog Artifactory.
+                </div>
+                <div class="topic-item">
+                    <strong>No Tests Here</strong>
+                    Tests already passed in CI. This stage focuses on build and publish only.
+                </div>
+                <div class="topic-item">
+                    <strong>Single Source of Truth</strong>
+                    Artifactory becomes the definitive source for all deployable artifacts.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Clear separation between validation (CI) and artifact creation.</li>
+                        <li>Immutable artifacts ensure consistency across environments.</li>
+                        <li>Centralized artifact management with JFrog.</li>
+                        <li>Fast pipeline execution (no tests to run).</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>If tests are flaky in CI, bad code might still reach Artifactory.</li>
+                        <li>Requires storage management for old artifacts in JFrog.</li>
+                        <li>No security scanning before pushing images.</li>
+                        <li>Manual cleanup required for old/unused images.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Efficient pipeline by skipping redundant tests.</li>
+                                <li>Centralized artifact storage in JFrog.</li>
+                                <li>Clear versioning strategy for Docker images.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Add vulnerability scanning (Trivy) before pushing to JFrog.</li>
+                                <li>Implement artifact retention policies in JFrog.</li>
+                                <li>Add SBOM (Software Bill of Materials) generation.</li>
+                                <li>Sign Docker images for supply chain security.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 5. CD PIPELINE -->
+    <section id="cd">
+        <div class="section-header">
+            <i class="fas fa-rocket"></i>
+            <h2>5. Continuous Deployment (CD) Pipeline</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Freestyle CD Pipeline Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">Pre-Deploy (Secrets)</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Python Venv Setup</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">Install Dependencies</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Deploy Script</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">K8s Apply</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Freestyle Job</strong>
+                    Uses Jenkins Freestyle project type with shell scripts for deployment.
+                </div>
+                <div class="topic-item">
+                    <strong>Python Deployment Script</strong>
+                    Custom Python script handles Kubernetes manifest application.
+                </div>
+                <div class="topic-item">
+                    <strong>Secret Management</strong>
+                    Docker registry secrets created securely using Jenkins credentials.
+                </div>
+                <div class="topic-item">
+                    <strong>Environment Promotion</strong>
+                    Same Docker image deployed to Dev, Test, then Prod with different configs.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Simple to understand and configure for non-developers.</li>
+                        <li>Flexible shell script integration for custom logic.</li>
+                        <li>Direct kubectl integration for Kubernetes deployments.</li>
+                        <li>Easy to add manual approval gates for production.</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>Not "Pipeline as Code" - job config not version controlled.</li>
+                        <li>Harder to maintain and scale across many applications.</li>
+                        <li>Limited reusability compared to Jenkins Shared Libraries.</li>
+                        <li>No visual pipeline representation in Jenkins UI.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-bullseye"></i> Use Cases</h3>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h5>Simple Deployments</h5>
+                    <p>Ideal for applications with straightforward deployment requirements.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Legacy Migrations</h5>
+                    <p>Good stepping stone when migrating from manual deployments to automation.</p>
+                </div>
+                <div class="use-case">
+                    <h5>Custom Deployment Logic</h5>
+                    <p>When deployment requires complex shell scripting or custom tools.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Automated Kubernetes deployments with custom Python scripts.</li>
+                                <li>Secure secret management using Jenkins credentials.</li>
+                                <li>Environment-specific deployment parameters.</li>
+                                <li>Manual approval gates for production safety.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Migrate to Jenkins Pipeline (Jenkinsfile) for version control.</li>
+                                <li>Implement Helm charts or Kustomize for manifest management.</li>
+                                <li>Add automated health checks and rollback on failure.</li>
+                                <li>Implement Blue-Green or Canary deployment strategies.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 6. ENVIRONMENT CONFIG -->
+    <section id="env">
+        <div class="section-header">
+            <i class="fas fa-cogs"></i>
+            <h2>6. Environment Variable Management</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Configuration Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">Resolve Config</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Inject to Dockerfile</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">Build Image</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">K8s ConfigMap</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">Runtime Injection</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Build Once, Deploy Many</strong>
+                    Same Docker image used across Dev, Test, and Prod environments.
+                </div>
+                <div class="topic-item">
+                    <strong>Environment Agnostic</strong>
+                    Containers don't contain environment-specific configuration.
+                </div>
+                <div class="topic-item">
+                    <strong>Dynamic Injection</strong>
+                    Kubernetes injects environment variables at runtime via ConfigMaps/Secrets.
+                </div>
+                <div class="topic-item">
+                    <strong>No Rebuilds</strong>
+                    Promoting to new environment doesn't require rebuilding the image.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Ensures consistency: "Build once, deploy anywhere".</li>
+                        <li>Faster deployments (no rebuild needed for promotion).</li>
+                        <li>Configuration versioned separately from code.</li>
+                        <li>Easy to manage environment-specific settings.</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>Requires robust configuration management strategy.</li>
+                        <li>Secrets management adds complexity.</li>
+                        <li>Runtime configuration can be harder to debug.</li>
+                        <li>Requires Kubernetes ConfigMap/Secret management.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>True "build once, deploy many" implementation.</li>
+                                <li>Environment-agnostic Docker images.</li>
+                                <li>Centralized configuration management.</li>
+                                <li>Clear separation of code and configuration.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Integrate external secret management (HashiCorp Vault).</li>
+                                <li>Use External Secrets Operator for Kubernetes.</li>
+                                <li>Implement configuration validation before deployment.</li>
+                                <li>Add configuration drift detection.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 7. SECURITY -->
+    <section id="security">
+        <div class="section-header">
+            <i class="fas fa-shield-alt"></i>
+            <h2>7. Security & Governance</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-route"></i> Security Controls Flow</h3>
+            <div class="flow-container">
+                <div class="flow-step">PR Gate</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step info">Branch Protection</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step warning">Code Review</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step">Artifact Immutability</div>
+                <i class="fas fa-arrow-right flow-arrow"></i>
+                <div class="flow-step success">Manual Prod Approval</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-brain"></i> Key Topics to Remember</h3>
+            <div class="key-topics">
+                <div class="topic-item">
+                    <strong>Mandatory PR Reviews</strong>
+                    All code changes must be reviewed before merging.
+                </div>
+                <div class="topic-item">
+                    <strong>Protected Branches</strong>
+                    Direct commits to develop/release/main are blocked.
+                </div>
+                <div class="topic-item">
+                    <strong>Artifact Immutability</strong>
+                    JFrog ensures artifacts cannot be modified after creation.
+                </div>
+                <div class="topic-item">
+                    <strong>Manual Production Approval</strong>
+                    Human approval required before deploying to production.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-balance-scale"></i> Pros & Cons</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4><i class="fas fa-thumbs-up"></i> Pros</h4>
+                    <ul>
+                        <li>Strong governance and compliance controls.</li>
+                        <li>Clear audit trail for all code changes.</li>
+                        <li>Prevents unauthorized changes to critical branches.</li>
+                        <li>Human oversight for production deployments.</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4><i class="fas fa-thumbs-down"></i> Cons</h4>
+                    <ul>
+                        <li>Manual approvals can slow down emergency deployments.</li>
+                        <li>Requires disciplined code review process.</li>
+                        <li>Can create bottlenecks if approvers are unavailable.</li>
+                        <li>Lacks automated security scanning in pipeline.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details>
+                <summary><i class="fas fa-star"></i> What We Did Great vs. How We Can Improve</summary>
+                <div class="details-content">
+                    <div class="status-grid">
+                        <div class="great">
+                            <h4><i class="fas fa-check-circle"></i> What We Did Great</h4>
+                            <ul>
+                                <li>Comprehensive branch protection rules.</li>
+                                <li>Mandatory code reviews with designated approvers.</li>
+                                <li>Immutable artifact strategy in JFrog.</li>
+                                <li>Manual approval gates for production safety.</li>
+                            </ul>
+                        </div>
+                        <div class="improve">
+                            <h4><i class="fas fa-lightbulb"></i> How We Can Improve</h4>
+                            <ul>
+                                <li>Add automated security scanning (SAST/DAST) in CI.</li>
+                                <li>Implement automated compliance checks (Checkov).</li>
+                                <li>Add secrets rotation policies.</li>
+                                <li>Integrate audit logging with SIEM system.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 8. ROADMAP -->
+    <section id="roadmap">
+        <div class="section-header">
+            <i class="fas fa-map-marked-alt"></i>
+            <h2>8. Improvement Roadmap</h2>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-calendar-alt"></i> Phased Implementation Plan</h3>
+            
+            <div class="status-grid">
+                <div class="great">
+                    <h4><i class="fas fa-flag"></i> Phase 1: Foundation (Month 1)</h4>
+                    <ul>
+                        <li>Migrate Freestyle CD jobs to Jenkins Pipeline</li>
+                        <li>Add security scanning (Trivy/Bandit) to CI</li>
+                        <li>Implement Jenkins Shared Libraries</li>
+                        <li>Document all pipelines and runbooks</li>
+                    </ul>
+                </div>
+                <div class="improve">
+                    <h4><i class="fas fa-rocket"></i> Phase 2: Optimization (Month 2-3)</h4>
+                    <ul>
+                        <li>Implement parallel test execution</li>
+                        <li>Add automated rollback mechanisms</li>
+                        <li>Integrate performance testing</li>
+                        <li>Implement ChatOps notifications (Slack/Teams)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="status-grid">
+                <div class="great">
+                    <h4><i class="fas fa-star"></i> Phase 3: Advanced (Month 4-6)</h4>
+                    <ul>
+                        <li>Implement GitOps with ArgoCD/Flux</li>
+                        <li>Deploy Blue-Green/Canary strategies</li>
+                        <li>Advanced monitoring and observability</li>
+                        <li>Disaster recovery testing</li>
+                    </ul>
+                </div>
+                <div class="improve">
+                    <h4><i class="fas fa-crown"></i> Phase 4: Excellence (Month 6+)</h4>
+                    <ul>
+                        <li>Self-healing infrastructure</li>
+                        <li>AI-powered pipeline optimization</li>
+                        <li>Full supply chain security (SLSA)</li>
+                        <li>Multi-cluster Kubernetes management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-check-double"></i> Best Practices Checklist</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Current Status</th>
+                        <th>Target Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CI Pipeline</strong></td>
+                        <td><span class="badge badge-success">Good</span> Linting, tests, build, smoke tests</td>
+                        <td><span class="badge badge-primary">Excellent</span> + Security scanning, parallel tests, coverage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CD Pipeline</strong></td>
+                        <td><span class="badge badge-warning">Fair</span> Freestyle jobs, Python scripts</td>
+                        <td><span class="badge badge-primary">Excellent</span> Pipeline as Code, Helm, automated rollback</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Branching</strong></td>
+                        <td><span class="badge badge-success">Good</span> GitFlow, protected branches</td>
+                        <td><span class="badge badge-primary">Excellent</span> + Automated cleanup, semantic versioning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td><span class="badge badge-success">Good</span> PR reviews, manual approvals</td>
+                        <td><span class="badge badge-primary">Excellent</span> + Automated SAST/DAST, compliance scanning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Environment Config</strong></td>
+                        <td><span class="badge badge-success">Good</span> Build once, deploy many</td>
+                        <td><span class="badge badge-primary">Excellent</span> + External secrets, drift detection</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p><i class="fas fa-code-branch"></i> Comprehensive CI/CD Architecture Guide | DevOps Excellence</p>
+    <p>Document Version 1.0 | Last Updated: July 2026 | Next Review: October 2026</p>
+</footer>
+
+<script>
+    // Smooth scrolling for navigation
+    document.querySelectorAll('nav a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            window.scrollTo({
+                top: targetSection.offsetTop - 80,
+                behavior: 'smooth'
+            });
+
+            // Update active nav link
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Update active nav link on scroll
+    window.addEventListener('scroll', () => {
+        let current = '';
+        const sections = document.querySelectorAll('section');
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= (sectionTop - 100)) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        document.querySelectorAll('nav a').forEach(a => {
+            a.classList.remove('active');
+            if (a.getAttribute('href') === `#${current}`) {
+                a.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
